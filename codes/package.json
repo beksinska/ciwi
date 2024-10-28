@@ -1,0 +1,27 @@
+{
+  "name": "cv_improvement_tool",
+  "version": "1.0.0",
+  "description": "Ciwi is a CV enhancement tool designed to help job seekers optimize their resumes for specific job postings. Ciwi scans the user's CV and provides tailored suggestions for improvement, increasing chances of landing the job.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beksinska/cv_improvement_tool.git"
+  },
+  "author": "Daria Posashkova",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/beksinska/cv_improvement_tool/issues"
+  },
+  "homepage": "https://github.com/beksinska/cv_improvement_tool#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.68.4"
+  }
+}
