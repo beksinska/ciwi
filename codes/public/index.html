@@ -6,7 +6,7 @@
   <title>CV Assistant</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: Segoe UI, sans-serif;
       background-color: #f4f7f6;
       color: #333;
       display: flex;
@@ -119,13 +119,17 @@
 
     function cleanMarkdown(text) {
       return text
-        .replace(/[_*~`#]/g, '')      // Remove symbols like *, _, ~, `, #
-        .replace(/!\[.*?\]\(.*?\)/g, '')  // Remove image syntax ![alt](url)
-        .replace(/\[(.*?)\]\(.*?\)/g, '$1')  // Convert links [text](url) to just "text"
-        .replace(/^\s*-\s+/gm, '')     // Remove list bullets like '-'
-        .replace(/^\s*\d+\.\s+/gm, '') // Remove ordered list numbers like '1.'
-        .trim();                        // Trim any extra whitespace
-    }
+        .replace(/(^|\s)#{1,6}\s+/g, '<strong>')         // Convert headings to bold
+        .replace(/[_*~`]/g, '')                           // Remove unwanted symbols like *, _, ~, `
+        .replace(/!\[.*?\]\(.*?\)/g, '')                  // Remove image syntax
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1')               // Convert links [text](url) to just "text"
+        .replace(/^- (.*)/gm, '• $1')                     // Replace list bullets with bullet points
+        .replace(/^\d+\.\s+/gm, '')                       // Remove ordered list numbers like '1.'
+        .replace(/\n\n/g, '<br><br>')                     // Add double line breaks for paragraph separation
+        .replace(/\n/g, '<br>')                           // Add single line breaks
+        .trim();
+      }
+
 
     const fileInput = document.getElementById('fileInput');
     const requestInput = document.getElementById('requestInput');
