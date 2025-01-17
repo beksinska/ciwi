@@ -12,6 +12,11 @@ app.use(express.static('public'))
 app.use(express.json())
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+if (!OPENAI_API_KEY) {
+  throw new Error('OPENAI_API_KEY environment variable is not set.')
+} else {
+  console.log('OpenAI API key is set.')
+}
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 })
@@ -53,32 +58,44 @@ async function createAssistant() {
 
 async function uploadPDFToVectorStore(filePath) {
   try {
-    const fileData = await openai.files.create({
-      file: fs.createReadStream(filePath),
-      purpose: 'assistants',
-    })
+      const fileData = await openai.files.create({
+          file: fs.createReadStream(filePath),
+          purpose: 'assistants',
+      })
 
-    console.log(`File uploaded with ID: ${fileData.id}`)
-
-    let vectorStore = await openai.beta.vectorStores.create({
-      name: 'Document Vector Store',
-    })
-
-    await openai.beta.vectorStores.files.createAndPoll(vectorStore.id, {
-      file_id: fileData.id,
-    })
-
-    console.log(`Vector store created with ID: ${vectorStore.id}`)
-
-    vectorStoreId = vectorStore.id
-
-    await openai.beta.assistants.update(assistantId, {
-      tool_resources: { file_search: { vector_store_ids: [vectorStoreId] } },
-    })
-    console.log(`Assistant updated with Vector Store ID: ${vectorStoreId}`)
-    return vectorStoreId
+      console.log(`File uploaded with ID: ${fileData.id}`)
   } catch (error) {
-    console.error('Error uploading file or creating vector store:', error.message)
+      console.error('Error uploading file:', error.message)
+      throw new Error('File upload failed')
+  }
+
+  let vectorStore
+  try {
+      vectorStore = await openai.beta.vectorStores.create({
+          name: 'Document Vector Store',
+      })
+
+      await openai.beta.vectorStores.files.createAndPoll(vectorStore.id, {
+          file_id: fileData.id,
+      })
+
+      console.log(`Vector store created with ID: ${vectorStore.id}`)
+  } catch (error) {
+      console.error('Error creating vector store:', error.message)
+      throw new Error('Vector store creation failed')
+  }
+
+  vectorStoreId = vectorStore.id
+
+  try {
+      await openai.beta.assistants.update(assistantId, {
+          tool_resources: { file_search: { vector_store_ids: [vectorStoreId] } },
+      })
+      console.log(`Assistant updated with Vector Store ID: ${vectorStoreId}`)
+      return vectorStoreId
+  } catch (error) {
+      console.error('Error updating assistant:', error.message)
+      throw new Error('Assistant update failed')
   }
 }
 
@@ -126,7 +143,7 @@ async function checkingStatus(res, threadId, runId) {
         if (message.role === 'assistant') {
           message.content.forEach(contentItem => {
             if (contentItem.type === 'text') {
-              let cleanText = contentItem.text.value.replace(/\【[^】]+】/g, '') // Citation removed like【4:0†source】
+              let cleanText = contentItem.text.value.replace(/【[^】]+】/g, '') // Citation removed like【4:0†source】
               answers.push(cleanText.trim())
             }
           })
