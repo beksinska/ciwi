@@ -2,7 +2,7 @@
   "name": "cv_improvement_tool",
   "version": "1.0.0",
   "description": "Ciwi is a CV enhancement tool designed to help job seekers optimize their resumes for specific job postings. Ciwi scans the user's CV and provides tailored suggestions for improvement, increasing chances of landing the job.",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
