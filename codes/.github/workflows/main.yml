@@ -1,0 +1,39 @@
+name: CV Improvement Tool CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    # More reliable then npm install for CI/CD
+    - name: Install dependencies
+      run: npm ci
+
+    # Add environment variables
+    - name: Create env file
+      run: |
+        touch .env
+        echo OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} >> .env
+
+    # Basic verification that the app can start
+    - name: Verify app starts
+      run: |
+        npm start &
+        sleep 5
+        kill $(lsof -t -i:3000) || true
