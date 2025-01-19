@@ -88,11 +88,16 @@ async function uploadPDFToVectorStore(filePath) {
 }
 
 async function createThread() {
-  const thread = await openai.beta.threads.create()
-  console.log(thread)
-  threadId = thread.id
-  return thread
+  try {
+    const thread = await openai.beta.threads.create()
+    console.log(thread)
+    threadId = thread.id
+    return thread
+  } catch (error) {
+    console.error('Error creating thread:', error.message)
+  }
 }
+
 
 async function addRequest(threadId, request) {
   console.log('Adding a new message to thread: ' + threadId)
@@ -111,6 +116,7 @@ async function runAssistant(threadId) {
   console.log(response)
   return response
 }
+
 async function checkingStatus(res, threadId, runId) {
   try {
     const runObject = await openai.beta.threads.runs.retrieve(threadId, runId)
@@ -188,6 +194,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: 'Failed to process file.' })
   }
 })
+
+export default app;
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, async () => {
